@@ -10,6 +10,7 @@ public class Controller2D : MonoBehaviour
     public int horizontalRayCount = 4;
     public int verticalRayCount = 4;
     public LayerMask collisionMask;
+    public CollisionInfo collisions;
 
     float horizontalRaySpacing;
     float verticalRaySpacing;
@@ -46,12 +47,6 @@ public class Controller2D : MonoBehaviour
         verticalRaySpacing = bounds.size.x / (verticalRayCount - 1);
     }
 
-    struct RaycastOrigins
-    {
-        public Vector2 topLeft, topRight;
-        public Vector2 bottomLeft, bottomRight;
-    }
-
     void HorizontalCollisions(ref Vector3 velocity)
     {
         float directionX = Mathf.Sign(velocity.x);
@@ -69,6 +64,9 @@ public class Controller2D : MonoBehaviour
             {
                 velocity.x = (hit.distance - skinWidth) * directionX;
                 rayLength = hit.distance;
+
+                collisions.left = directionX < 0;
+                collisions.right = directionX > 0;
             }
         }
     }
@@ -89,6 +87,9 @@ public class Controller2D : MonoBehaviour
             if (hit) {
                 velocity.y = (hit.distance - skinWidth) * directionY;
                 rayLength = hit.distance;
+
+                collisions.below = directionY < 0;
+                collisions.above = directionY > 0;
             }
         }
     }
@@ -96,6 +97,8 @@ public class Controller2D : MonoBehaviour
     public void Move(Vector3 velocity)
     {
         UpdateRaycastOrigins();
+        collisions.Reset();
+
         if (velocity.x != 0)
         {
             HorizontalCollisions(ref velocity);
@@ -107,6 +110,25 @@ public class Controller2D : MonoBehaviour
         }
 
         transform.Translate(velocity);
+    }
+
+
+    struct RaycastOrigins
+    {
+        public Vector2 topLeft, topRight;
+        public Vector2 bottomLeft, bottomRight;
+    }
+
+    public struct CollisionInfo
+    {
+        public bool left, right;
+        public bool above, below;
+
+        public void Reset()
+        {
+            left = right = false;
+            above = below = false;
+        }
     }
 
 }
