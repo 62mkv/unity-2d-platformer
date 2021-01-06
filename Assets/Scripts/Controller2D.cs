@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent (typeof (BoxCollider2D))]
+[RequireComponent(typeof(BoxCollider2D))]
 public class Controller2D : MonoBehaviour
 {
     const float skinWidth = .015f;
@@ -64,7 +64,7 @@ public class Controller2D : MonoBehaviour
             if (hit)
             {
                 float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
-                
+
                 if (i == 0 && slopeAngle <= maxClimbAngle)
                 {
                     float distanceToSlopeStart = 0;
@@ -106,7 +106,8 @@ public class Controller2D : MonoBehaviour
 
             Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
 
-            if (hit) {
+            if (hit)
+            {
                 velocity.y = (hit.distance - skinWidth) * directionY;
                 rayLength = hit.distance;
 
@@ -116,6 +117,24 @@ public class Controller2D : MonoBehaviour
                 }
                 collisions.below = directionY < 0;
                 collisions.above = directionY > 0;
+            }
+        }
+
+        if (collisions.climbingSlope)
+        {
+            float directionX = Mathf.Sign(velocity.x);
+            rayLength = Mathf.Abs(velocity.x) + skinWidth;
+            Vector2 rayOrigin = ((directionX < 0) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight) + Vector2.up * velocity.y;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+
+            if (hit)
+            {
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                if (slopeAngle != collisions.slopeAngle)
+                {
+                    velocity.x = (hit.distance - skinWidth) * directionX;
+                    collisions.slopeAngle = slopeAngle;
+                }
             }
         }
     }
