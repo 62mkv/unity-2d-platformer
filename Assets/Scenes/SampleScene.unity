@@ -444,7 +444,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1265028922}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.92, y: -0.24, z: -0.6778456}
+  m_LocalPosition: {x: 3.94, y: -0.2, z: -0.6778456}
   m_LocalScale: {x: 3.3711078, y: 0.7619744, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -470,7 +470,14 @@ MonoBehaviour:
   passengerMask:
     serializedVersion: 2
     m_Bits: 256
-  move: {x: 0, y: 1, z: 0}
+  localWaypoints:
+  - {x: 0, y: 0, z: 0}
+  - {x: 0, y: 6, z: 0}
+  - {x: 9, y: 9, z: 0}
+  speed: 5
+  cyclic: 0
+  waitTime: 0.5
+  easeAmount: 0
 --- !u!1 &2123919214
 GameObject:
   m_ObjectHideFlags: 0
