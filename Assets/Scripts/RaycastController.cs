@@ -110,6 +110,7 @@ public class RaycastController : MonoBehaviour
         public bool above, below;
         public bool climbingSlope;
         public bool descendingSlope;
+        public int faceDir; 
 
         public Vector3 velocityOld;
 
