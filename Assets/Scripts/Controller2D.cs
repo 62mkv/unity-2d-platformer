@@ -5,17 +5,25 @@ using UnityEngine;
 public class Controller2D : RaycastController
 {
 
+    public CollisionInfo collisions;
+    Vector2 playerInput;
+
     public override void Start()
     {
         base.Start();
         collisions.faceDir = 1;
     }
 
-    public void Move(Vector3 velocity, bool standingOnPlatform = false)
+    public void Move(Vector3 velocity, bool standingOnPlatform = false) {
+        Move(velocity, Vector2.zero, standingOnPlatform);
+    }
+
+    public void Move(Vector3 velocity, Vector2 input, bool standingOnPlatform = false)
     {
         UpdateRaycastOrigins();
         collisions.Reset();
         collisions.velocityOld = velocity;
+        playerInput = input;
 
         if (velocity.x != 0) {
             collisions.faceDir = (int)Mathf.Sign(velocity.x);
@@ -103,6 +111,60 @@ public class Controller2D : RaycastController
         }
     }
 
+    protected void VerticalCollisions(ref Vector3 velocity) {
+        float directionY = Mathf.Sign(velocity.y);
+        float rayLength = Mathf.Abs(velocity.y) + skinWidth;
+
+        for (int i = 0; i < verticalRayCount; i++) {
+            Vector2 rayOrigin = directionY == -1 ? raycastOrigins.bottomLeft : raycastOrigins.topLeft;
+            rayOrigin += Vector2.right * (verticalRaySpacing * i + velocity.x);
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.up * directionY, rayLength, collisionMask);
+
+            Debug.DrawRay(rayOrigin, Vector2.up * directionY * rayLength, Color.red);
+
+            if (hit) {
+
+                if (hit.collider.tag == "Through") {
+                    if (directionY == 1 || hit.distance == 0) {
+                        continue; // skip collision detection as if we haven't collided w/anything - because it's a "through" obstacle
+                    }
+
+                    if (collisions.fallingThrough) {
+                        continue;
+                    }
+
+                    if (playerInput.y == -1) {
+                        collisions.fallingThrough = true;
+                        Invoke("ResetFallingThrough", .5f);
+                        continue;
+                    }
+                }
+                velocity.y = (hit.distance - skinWidth) * directionY;
+                rayLength = hit.distance;
+
+                if (collisions.climbingSlope) {
+                    velocity.x = velocity.y / Mathf.Tan(collisions.slopeAngle * Mathf.Deg2Rad) * Mathf.Sign(velocity.x);
+                }
+                collisions.below = directionY < 0;
+                collisions.above = directionY > 0;
+            }
+        }
+
+        if (collisions.climbingSlope) {
+            float directionX = Mathf.Sign(velocity.x);
+            rayLength = Mathf.Abs(velocity.x) + skinWidth;
+            Vector2 rayOrigin = ((directionX < 0) ? raycastOrigins.bottomLeft : raycastOrigins.bottomRight) + Vector2.up * velocity.y;
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.right * directionX, rayLength, collisionMask);
+
+            if (hit) {
+                float slopeAngle = Vector2.Angle(hit.normal, Vector2.up);
+                if (slopeAngle != collisions.slopeAngle) {
+                    velocity.x = (hit.distance - skinWidth) * directionX;
+                    collisions.slopeAngle = slopeAngle;
+                }
+            }
+        }
+    }
 
     void ClimbSlope(ref Vector3 velocity, float slopeAngle)
     {
@@ -145,6 +207,32 @@ public class Controller2D : RaycastController
                     }
                 }
             }
+        }
+    }
+
+    void ResetFallingThrough() {
+        collisions.fallingThrough = false;
+    }
+
+    public struct CollisionInfo {
+        public bool left, right;
+        public bool above, below;
+        public bool climbingSlope;
+        public bool descendingSlope;
+        public int faceDir;
+        public bool fallingThrough;
+
+        public Vector3 velocityOld;
+
+        public float slopeAngle, slopeAngleOld;
+
+        public void Reset() {
+            left = right = false;
+            above = below = false;
+            climbingSlope = descendingSlope = false;
+
+            slopeAngleOld = slopeAngle;
+            slopeAngle = 0;
         }
     }
 

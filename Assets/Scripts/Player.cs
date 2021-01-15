@@ -6,7 +6,8 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
 
-    public float jumpHeight = 4;
+    public float maxJumpHeight = 4;
+    public float minJumpHeight = 1;
     public float timeToJumpApex = .4f;
     public Vector2 wallJumpClimb;
     public Vector2 wallJumpOff;
@@ -21,7 +22,8 @@ public class Player : MonoBehaviour
     float accelerationTimeGrounded = .1f;
     float moveSpeed = 6;
     float gravity;
-    float jumpVelocity;
+    float maxJumpVelocity;
+    float minJumpVelocity;
     Vector3 velocity;
 
     float velocityXSmoothing;
@@ -31,8 +33,10 @@ public class Player : MonoBehaviour
     void Start()
     {
         controller = GetComponent<Controller2D>();
-        gravity = - jumpHeight * 2 / (timeToJumpApex * timeToJumpApex);
-        jumpVelocity = Mathf.Abs(gravity)* timeToJumpApex;
+        gravity = - maxJumpHeight * 2 / (timeToJumpApex * timeToJumpApex);
+
+        minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
+        maxJumpVelocity = Mathf.Abs(gravity)* timeToJumpApex;
     }
 
     // Update is called once per frame
@@ -68,12 +72,6 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (controller.collisions.above || controller.collisions.below)
-        {
-            velocity.y = 0;
-        }
-
-
         if (Input.GetKeyDown(KeyCode.Space))
         {
             if (wallSliding) {
@@ -91,12 +89,20 @@ public class Player : MonoBehaviour
                 }
             }
             if (controller.collisions.below) {
-                velocity.y = jumpVelocity;
+                velocity.y = maxJumpVelocity;
             }
         }
 
+        if (Input.GetKeyUp(KeyCode.Space) && (velocity.y > minJumpVelocity)) {
+            velocity.y = minJumpVelocity;
+        }
+
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
+        controller.Move(velocity * Time.deltaTime, input);
+
+        if (controller.collisions.above || controller.collisions.below) {
+            velocity.y = 0;
+        }
     }
 
 }
