@@ -18,13 +18,16 @@ public class RaycastController : MonoBehaviour
     protected float horizontalRaySpacing;
     protected float verticalRaySpacing;
 
-    protected BoxCollider2D _collider;
+    public BoxCollider2D _collider;
     protected RaycastOrigins raycastOrigins;
 
     // Start is called before the first frame update
-    virtual public void Start()
+    public virtual void Awake()
     {
         _collider = GetComponent<BoxCollider2D>();
+    }
+
+    public virtual void Start() {
         CalculateRaySpacing();
     }
 
