@@ -5,8 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider2D))]
 public class RaycastController : MonoBehaviour {
 
-    protected const float maxClimbAngle = 60;
-    protected const float maxDescendAngle = 75;
     const float dstBetweenRays = .25f;
     protected const float skinWidth = .015f;
 

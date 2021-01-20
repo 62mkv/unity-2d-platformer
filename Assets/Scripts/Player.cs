@@ -24,7 +24,7 @@ public class Player : MonoBehaviour
     float gravity;
     float maxJumpVelocity;
     float minJumpVelocity;
-    Vector3 velocity;
+    Vector2 velocity;
 
     float velocityXSmoothing;
 
@@ -53,7 +53,11 @@ public class Player : MonoBehaviour
 
         controller.Move(velocity * Time.deltaTime, directionalInput);
         if (controller.collisions.above || controller.collisions.below) {
-            velocity.y = 0;
+            if (controller.collisions.slidingDownMaxSlope) {
+                velocity.y -= controller.collisions.slopeNormal.y * gravity * Time.deltaTime;
+            } else {
+                velocity.y = 0;
+            }
         }
     }
 
@@ -77,7 +81,15 @@ public class Player : MonoBehaviour
             }
         }
         if (controller.collisions.below) {
-            velocity.y = maxJumpVelocity;
+            if (controller.collisions.slidingDownMaxSlope) {
+                if (directionalInput.x != -Mathf.Sign(controller.collisions.slopeNormal.x)) { // not jumping against maxSlope
+                    velocity.y = maxJumpVelocity * controller.collisions.slopeNormal.y;
+                    velocity.x = maxJumpVelocity * controller.collisions.slopeNormal.x;
+                }
+            }
+            else {
+                velocity.y = maxJumpVelocity;
+            }
         }
     }
 
