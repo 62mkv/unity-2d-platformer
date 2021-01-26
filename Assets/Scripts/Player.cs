@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent (typeof (Controller2D))]
+[RequireComponent (typeof (SpriteRenderer))]
 public class Player : MonoBehaviour
 {
 
@@ -29,7 +30,8 @@ public class Player : MonoBehaviour
     float velocityXSmoothing;
 
     Controller2D controller;
-
+    SpriteRenderer spriteRenderer;
+       
     Vector2 directionalInput;
     bool wallSliding;
     int wallDirX;
@@ -38,6 +40,8 @@ public class Player : MonoBehaviour
     void Start()
     {
         controller = GetComponent<Controller2D>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+
         gravity = - maxJumpHeight * 2 / (timeToJumpApex * timeToJumpApex);
 
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
@@ -59,6 +63,8 @@ public class Player : MonoBehaviour
                 velocity.y = 0;
             }
         }
+
+        spriteRenderer.flipX = velocity.x < 0;
     }
 
     public void SetDirectionalInput(Vector2 input) {
