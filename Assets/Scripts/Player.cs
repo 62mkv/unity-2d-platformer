@@ -1,6 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 [RequireComponent (typeof (Controller2D))]
 [RequireComponent (typeof (SpriteRenderer))]
@@ -26,7 +28,7 @@ public class Player : MonoBehaviour
     float maxJumpVelocity;
     float minJumpVelocity;
     Vector2 velocity;
-
+    Sprite facingLeft, facingRight;
     float velocityXSmoothing;
 
     Controller2D controller;
@@ -41,11 +43,26 @@ public class Player : MonoBehaviour
     {
         controller = GetComponent<Controller2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        
+        Sprite[] sprites = Resources.LoadAll<Sprite>("kindpng_3865473");
+        facingLeft = FindSprite(sprites, "frisk-transp-left");
+        facingRight = FindSprite(sprites, "frisk-transp-right");
+        spriteRenderer.sprite = facingRight;
 
         gravity = - maxJumpHeight * 2 / (timeToJumpApex * timeToJumpApex);
 
         minJumpVelocity = Mathf.Sqrt(2 * Mathf.Abs(gravity) * minJumpHeight);
         maxJumpVelocity = Mathf.Abs(gravity)* timeToJumpApex;
+    }
+
+    private Sprite FindSprite(Sprite[] sprites, string name) {
+        foreach (Sprite sprite in sprites) {
+            if (sprite.name == name) {
+                return sprite;
+            }
+        }
+
+        throw new KeyNotFoundException();
     }
 
 
@@ -64,7 +81,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        spriteRenderer.flipX = velocity.x < 0;
+        spriteRenderer.sprite = (velocity.x < 0) ? facingLeft: facingRight;
     }
 
     public void SetDirectionalInput(Vector2 input) {
