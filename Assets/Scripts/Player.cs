@@ -44,9 +44,9 @@ public class Player : MonoBehaviour
         controller = GetComponent<Controller2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         
-        Sprite[] sprites = Resources.LoadAll<Sprite>("kindpng_3865473");
-        facingLeft = FindSprite(sprites, "frisk-transp-left");
-        facingRight = FindSprite(sprites, "frisk-transp-right");
+        Sprite[] sprites = Resources.LoadAll<Sprite>("misha-knight-1");
+        facingLeft = FindSprite(sprites, "misha-knight-left");
+        facingRight = FindSprite(sprites, "misha-knight-right");
         spriteRenderer.sprite = facingRight;
 
         gravity = - maxJumpHeight * 2 / (timeToJumpApex * timeToJumpApex);
